@@ -384,6 +384,7 @@ print(maxSum([2, -8, 3, -2, 4, -10]))
 
 def langtonsAnt(k):
     numRows = numCols = 1
+    minRow = minCol = maxRow = maxCol = 0
     white = set()
     # 0 1 2 3 top right down left
     direction = 1
@@ -415,25 +416,29 @@ def langtonsAnt(k):
         '''
         if direction == 0:
             currRow -= 1
-            if currRow < 0:
+            if currRow < minRow:
+                minRow = currRow
                 numRows += 1
-                white = shiftDown(white, 1)
-                currRow = 0
         elif direction == 1:
             currCol += 1
-            if currCol >= numCols:
+            if currCol > maxCol:
+                maxCol = currCol
                 numCols += 1
         elif direction == 2:
             currRow += 1
-            if currRow >= numRows:
+            if currRow > maxRow:
+                maxRow = currRow
                 numRows += 1
         elif direction == 3:
             currCol -= 1
-            if currCol < 0:
+            if currCol < minCol:
+                minCol = currCol
                 numCols += 1
-                white = shiftRight(white, 1)
-                currCol = 0
         k -= 1
+    white = shiftDown(white, abs(minRow))
+    white = shiftRight(white, abs(minCol))
+    currRow += abs(minRow)
+    currCol += abs(minCol)
     # '-' is black, '1' is white. we start with all black grid
     grid = [['-' for _ in range(numCols)] for _ in range(numRows)]
     for coordinate in white:
