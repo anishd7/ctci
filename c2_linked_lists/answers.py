@@ -168,9 +168,11 @@ def kthElementOfSinglyLinkedList(head: Node, k):
         runner = runner.next
     return slow.val
 
+'''
 head = createListWithDuplicates(0, 1, 10)
 for i in range(1, 11):
     print(kthElementOfSinglyLinkedList(head, i))
+'''
 
 '''
 2.3 delete middle node - given only the middle node inside of a singly linked list, delete the middle node
@@ -179,11 +181,92 @@ inside the list. you are not given the list, and you don't need to return anythi
 if you were given the list, then it would be easy. just iterate through the list until the next node is 
 the middle node, then delete that node. but in this case you are not given the list.
 
-Approach: push the middle node until the end of the list. maintain a prev pointer as well. when the middle node
-has reached the end of the list, then prev will be pointing to the 2nd to last element, and you can use prev to 
-delete the last node.
+Approach: swap the numbers of the middle node with every node after it, essentially "pushing" the number down the list.
+You have to do this with the number instead of the node, because if you do it with the node, you will cut the list in half. 
+Maintain a prev pointer as well. Once you reach the end of the list, last node will contain the middle node's value, and prev
+will be pointing to the second to last value. Use prev to snip the last node off. 
 '''
 
 def deleteMiddleNode(middle: Node):
-    pass
+    if middle is None:
+        return
+    curr = middle
+    prev = None
+    while curr.next is not None:
+        temp = curr.next.val
+        curr.next.val = curr.val
+        curr.val = temp
+        prev = curr
+        curr = curr.next
+    if prev is None:
+        # this doesn't work, but not sure how else to delete the node the pointer is pointing to in python. 
+        del middle
+    else:
+        prev.next = None
+
+# helper method that returns the middle node from a linked list. used for testing.
+def getMiddleFromList(head) -> Node:
+    if head is None:
+        return head
+    curr = head
+    fast = head.next
+    while fast is not None and fast.next is not None:
+        curr = curr.next
+        fast = fast.next
+        if fast is not None:
+            fast = fast.next
+    return curr
+
+''' 
+head = createListWithDuplicates(0, 3, 4)
+printList(head)
+middle = getMiddleFromList(head)
+deleteMiddleNode(middle)
+printList(head)
+'''
+
+'''
+2.4 Partition around X. Write code to partition a singly linked list around a value X, such that all nodes with values < X come before all nodes
+with values >= X
+
+Brute force: iterate through the list, if a number is < X, save it to one map, if its >= X, save it to a different map. Then construct a new list using that
+information
+
+Optimized Approach: Iterate through the list to find the tail (last node in the list). Then, iterate again. If an element < X, move forward. If it's >= X, append it
+to end of the list, delete it from its current position, then move forward. When you reach the tail node, exit. Assumption: order doesn't matter so long as all 
+elements < X are before all elements >= X. If this assumption is correct, then the tail will be in the correct position no matter what - either its at the end of all numbers,
+or its at the beginning of all numbers >= X. It's in the correct position anyway. 
+'''
+
+def partitionAroundX(head, partitionVal):
+    if head is None:
+        return head
+    curr = head
+    while curr.next is not None:
+        curr = curr.next
+    tail = curr
+    
+    sentinel = Node(-1)
+    sentinel.next = head
+    curr = head
+    prev = sentinel
+    higherCurr = tail
+    while curr != tail:
+        if curr.val >= partitionVal:
+            next = curr.next
+            prev.next = next
+            curr.next = None
+            higherCurr.next = curr
+            higherCurr = higherCurr.next
+            curr = next
+        else:
+            prev = curr
+            curr = curr.next
+    return sentinel.next
+
+head = createListWithDuplicates(4, 1, 10)
+printList(head)
+result = partitionAroundX(head, 4)
+printList(result)
+
     
