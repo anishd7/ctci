@@ -464,8 +464,10 @@ def shiftRight(s, shiftAmount) -> set:
         newWhite.add((row, col + shiftAmount))
     return newWhite
 
+'''
 for i in range(16):
     langtonsAnt(i)
+'''
 
 
 
