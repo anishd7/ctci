@@ -264,9 +264,165 @@ def partitionAroundX(head, partitionVal):
             curr = curr.next
     return sentinel.next
 
-head = createListWithDuplicates(4, 1, 10)
+'''
+head = createListWithDuplicates(4, 1, 11)
 printList(head)
-result = partitionAroundX(head, 4)
+result = partitionAroundX(head, 10)
+printList(result)
+'''
+
+'''
+2.5 Sum Lists - you are given 2 singly linked lists where each node in the list is a digit of a number in reverse order. so 5 -> 1 -> 2 = 215. Sum the 2 lists and return the answer
+as a linked list in reverse order. 
+
+Approaches:
+
+1) Form actual ints from the list, sum the ints, then covert the resulting int to a linked list in the desired order
+2) Go node by node, keep track of digit and carry.
+'''
+
+def sumLists(a, b):
+    p1 = a
+    p2 = b
+    carry = 0
+    sentinel = Node(-1)
+    curr = sentinel
+    while p1 is not None or p2 is not None:
+        val1 = val2 = 0
+        if p1 is not None:
+            val1 = p1.val
+            p1 = p1.next
+        if p2 is not None:
+            val2 = p2.val
+            p2 = p2.next
+        s = val1 + val2 + carry
+        digit = s if s < 10 else s - 10
+        carry = 0 if s < 10 else 1
+        curr.next = Node(digit, None)
+        curr = curr.next
+    if carry:
+        curr.next = Node(carry)
+    return sentinel.next
+
+'''
+l1 = Node(7)
+l1.next = Node(1)
+l1.next.next = Node(6)
+
+l2 = Node(5)
+l2.next = Node(9)
+l2.next.next = Node(2)
+
+result = sumLists(l1, l2)
+printList(result)
+'''
+
+'''
+2.5 Follow up - Same problem as above, but the digits are in forward order. 
+
+Approaches:
+1) Covert the lists to ints, sum the ints, convert the result to a list
+2) Go recursively. On each recursive level, call the recursive function on the remainder of the lists. Each level should return the completed list from that point forward, and a carry value. 
+You might have to add padding to the beginning of the list if the lists are of uneven size. This is because I assume 1 -> 2 -> 3 -> 4 + 3 -> 4 for example = 1234 + 34, NOT 1234 + 3400.
+3) Same as approach 2, but iteratively, using a stack
+4) reverse the lists then use the algorithm from initial problem (makes assumption that you can modify input lists)
+
+Approach 1 is the most space efficient, but all 3 have the same time efficiency. You will have to iterate over the lists twice.
+'''
+
+def getLengthOfList(l):
+    curr = l
+    result = 0
+    while curr is not None:
+        curr = curr.next
+        result += 1
+    return result
+
+# approach 2
+def followup2_5_recursive(a, b):
+
+    def recur(a, b):
+        if a is None and b is None:
+            return (0, None)
+        carry, finishedList = recur(a.next, b.next)
+        s = a.val + b.val + carry
+        digit = s if s < 10 else s - 10
+        carry = 0 if s < 10 else 1
+        return (carry, Node(digit, finishedList))
+
+    alength = getLengthOfList(a)
+    blength = getLengthOfList(b)
+    diff = abs(alength - blength)
+    if diff > 0:
+        paddingSentinel = Node(-1)
+        curr = paddingSentinel
+        while diff > 0:
+            curr.next = Node(0)
+            curr = curr.next
+            diff -= 1
+        if alength < blength:
+            curr.next = a
+            a = paddingSentinel.next
+        else:
+            curr.next = b
+            b = paddingSentinel.next
+
+    carry, finishedList = recur(a, b)
+    result = finishedList
+    if carry:
+        result = Node(carry, finishedList)
+    return result
+
+# approach 3
+def followup2_5_iterative(a, b):
+    stack1 = []
+    stack2 = []
+    curr = a
+    while curr is not None:
+        stack1.append(curr.val)
+        curr = curr.next
+    curr = b
+    while curr is not None:
+        stack2.append(curr.val)
+        curr = curr.next
+    carry = 0
+    sentinel = Node(-1)
+    while stack1 or stack2:
+        val1 = stack1.pop() if stack1 else 0
+        val2 = stack2.pop() if stack2 else 0
+        s = val1 + val2 + carry
+        digit = s if s < 10 else s - 10
+        carry = 0 if s < 10 else 1
+        sentinel.next = Node(digit, sentinel.next)
+    if carry:
+        sentinel.next = Node(carry, sentinel.next)
+    return sentinel.next
+
+
+
+l1 = Node(2)
+l1.next = Node(0)
+l1.next.next = Node(0)
+l1.next.next.next = Node(0)
+
+l2 = Node(3)
+l2.next = Node(2)
+l2.next.next = Node(4)
+
+result = followup2_5_recursive(l1, l2)
+printList(result)
+result = followup2_5_recursive(l1, l2)
 printList(result)
 
-    
+l1 = Node(9)
+l1.next = Node(9)
+l1.next.next = Node(9)
+
+l2 = Node(9)
+l2.next = Node(9)
+l2.next.next = Node(9)
+
+result = followup2_5_recursive(l1, l2)
+printList(result)
+result = followup2_5_recursive(l1, l2)
+printList(result)
